@@ -8,6 +8,8 @@ from random import random
 from stocklib.perioddata import PeriodData, Period
 from datetime import datetime, timedelta
 
+# Helper functons to create some fake financial data
+# TODO I duplicated this for check code, so put it in a util module next time I am in here
 def generate_random_perioddata(dt):
     a = random()*50+50
     b = random()*50+50
@@ -24,9 +26,9 @@ def generate_random_series():
         retval.append(generate_random_perioddata(dt))
     return retval
 
-# in progress demo code
+# Here begins the example code
 
-
+# Track the adjusted close and 20 period simple moving average 
 close = AdjustedClose()
 sma = SimpleMovingAverage(metric=close, period=20)
 
