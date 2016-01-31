@@ -1,7 +1,7 @@
 '''
 Created on Dec 14, 2014
 
-@author: oly
+@author: oly@oberdorf.org
 '''
 
 import numpy
@@ -446,12 +446,7 @@ class SimpleMovingAverage(Metric):
     def value(self):
         if len(self.data) < self.period:
             return None
-        avg = 0
-        for i in self.data:
-            avg += i
-        if avg != 0:
-            avg = avg/len(self.data)
-        return avg
+        return numpy.average(self.data)
 
     def ready(self):
         if len(self.data) >= self.period:
@@ -459,6 +454,10 @@ class SimpleMovingAverage(Metric):
         return False
 
     def handle(self, periodData):
+        # TODO a carousel approach would be faster, where we continuously
+        # update the index to drop and replace that element with the new
+        # data point.  updating a list element is constant-time, while
+        # removing the first element is slow for large lists.
         if self.manageMetric ==  True:
             self.metric.handle(periodData)
         if self.metric.ready():
