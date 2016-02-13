@@ -856,7 +856,7 @@ class BollingerBands(Metric):
             self.metric.handle(periodData)
         self.sma.handle(periodData)
         if self.sma.ready():
-            deviation = self.metric.value() - self.sma.value()
+            deviation = self.metric.value() # - self.sma.value()
             self.data.append(deviation);
             if len(self.data) > self.period:
                 self.data = self.data[(len(self.data)-self.period):]
@@ -1090,3 +1090,7 @@ class NumTapsShort(Metric):
 
     def recommendedPreload(self):
         return self.metric.recommendedPreload() + self.period
+
+class MACD(Metric):
+    def __init__(self, settings):
+        super().__init__(self, settings)
