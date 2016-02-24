@@ -8,9 +8,14 @@ from indicators import Low, High, Lowest, Highest
 from indicators import Divide, Subtract, Multiply,\
     SimpleMovingAverage, Value
 from indicators import Close
+import logging
+
+log = logging.getLogger(__name__)
+log.setLevel(logging.DEBUG)
 
 class Stochastics(MultiMetricMetric):
     def __init__(self, period, dperiod):
+        log.warn("Stochastics are in progress and values may be wrong")
         MultiMetricMetric.__init__(self)
         self.period = period
         self.dperiod = dperiod
