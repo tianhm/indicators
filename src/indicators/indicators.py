@@ -51,7 +51,9 @@ class Subtract(Metric):
         self.metric2 = metric2
 
     def value(self):
-        return self.metric1.value() - self.metric2.value()
+        if self.ready():
+            return self.metric1.value() - self.metric2.value()
+        return None
 
     def ready(self):
         return self.metric1.ready() and self.metric2.ready()
@@ -279,11 +281,24 @@ class Volume(Metric):
         self.val = perioddata.volume
 
 class MultiMetricMetric(Metric):
+    """ If your metric depends on other metrics, subclass
+    this and use _addMetric(m) to manage your dependencies.
+    
+    It is assumed that you created the dependencies in
+    your constructor and all metrics will be fed the
+    period data on a call to handle.  Do not add metrics
+    that you are passed in via constructor or those will
+    be sent the period data twice.
+    """
     def __init__(self):
         self.metrics = list()
 
     def _addMetric(self, metric):
         self.metrics.append(metric)
+
+    def _addMetrics(self, *metrics):
+        for metric in metrics:
+            self._addMetric(metric)
 
     def ready(self):
         for metric in self.metrics:
@@ -1091,6 +1106,20 @@ class NumTapsShort(Metric):
     def recommendedPreload(self):
         return self.metric.recommendedPreload() + self.period
 
-class MACD(Metric):
-    def __init__(self, settings):
-        super().__init__(self, settings)
+class MACD(ProxiedMetric):
+    def __init__(self, metric, fastma=12, slowma=26, signalma=9):
+        ProxiedMetric.__init__(self, metric)
+        self.fastma = ExponentialMovingAverage(metric, fastma)
+        self.slowma = ExponentialMovingAverage(metric, slowma)
+        self.macdline = Subtract(self.fastma,self.slowma)
+        self.signalma = ExponentialMovingAverage(self.macdline, signalma)
+        self.macdhist = Subtract(self.macdline, self.signalma)
+
+        self._addMetric(self.fastma)
+        self._addMetric(self.slowma)
+        self._addMetric(self.macdline)
+        self._addMetric(self.signalma)
+        self._addMetric(self.macdhist)
+
+    def value(self):
+        return self.macdhist.value()
