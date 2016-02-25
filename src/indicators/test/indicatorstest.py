@@ -30,28 +30,29 @@ class IndicatorsTest(unittest.TestCase):
         See: http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:stochastic_oscillator_fast_slow_and_full
 
         """
-        stoch = Stochastics(14,3)
+        stoch = Stochastics(14,1,3)
         # high,low - open does not matter and close only
         # relevant for last bar
-        for bar in [ \
-                (127.01,125.36),\
-                (127.62,126.16),\
-                (126.59,124.93),\
-                (127.35,126.09),\
-                (128.17,126.82),\
-                (128.43,126.48),\
-                (127.37,126.03),\
-                (126.42,124.83),\
-                (126.90,126.39),\
-                (126.85,125.72),\
-                (125.65,124.56),\
-                (125.72,124.57),\
-                (127.16,125.07)]:
-            stoch.handle(self._fakePeriodOHLCData(bar[0],bar[0],bar[1],bar[1]))
-        stoch.handle(self._fakePeriodOHLCData(127.72,127.72,126.86,127.29))
-        stoch.handle(self._fakePeriodOHLCData(127.69,127.69,126.83,127.18))
+        for bar in [
+                (127.01, 125.36),
+                (127.62, 126.16),
+                (126.59, 124.93),
+                (127.35, 126.09),
+                (128.17, 126.82),
+                (128.43, 126.48),
+                (127.37, 126.03),
+                (126.42, 124.83),
+                (126.90, 126.39),
+                (126.85, 125.72),
+                (125.65, 124.56),
+                (125.72, 124.57),
+                (127.16, 125.07)]:
+            stoch.handle(self._fakePeriodOHLCData(bar[0], bar[0], bar[1], bar[1]))
+        stoch.handle(self._fakePeriodOHLCData(127.72, 127.72, 126.86, 127.29))
+        stoch.handle(self._fakePeriodOHLCData(127.69, 127.69, 126.83, 127.18))
+        stoch.handle(self._fakePeriodOHLCData(128.22, 128.22, 126.80, 128.01))
         self.assertTrue(stoch.ready())
-        self.assertAlmostEquals(stoch.value(),67.61,places=2)
+        self.assertLess(abs(stoch.percentK()-89.20), .1)
 
 if __name__ == "__main__":
     unittest.main()

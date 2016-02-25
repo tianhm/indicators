@@ -14,7 +14,7 @@ log = logging.getLogger(__name__)
 log.setLevel(logging.DEBUG)
 
 class Stochastics(MultiMetricMetric):
-    def __init__(self, period, dperiod):
+    def __init__(self, period, kperiod, dperiod):
         log.warn("Stochastics are in progress and values may be wrong")
         MultiMetricMetric.__init__(self)
         self.period = period
@@ -28,13 +28,18 @@ class Stochastics(MultiMetricMetric):
         self.highdiff = Subtract(self.highest, self.lowest)
         self.percentKRaw = Divide(self.closediff, self.highdiff)
         self.pK = Multiply(self.percentKRaw, Value(100.0))
-        self.pD = SimpleMovingAverage(metric=self.pK, period=self.dperiod)
+        self.slowK = SimpleMovingAverage(metric=self.pK, period=kperiod)
+        self.pD = SimpleMovingAverage(metric=self.slowK, period=self.dperiod)
+
         self._addMetrics(self.close, self.low, self.high, self.lowest, \
                          self.highest, self.closediff, self.highdiff, \
-                         self.percentKRaw, self.pK, self.pD)
+                         self.percentKRaw, self.pK, self.slowK, self.pD)
 
     def value(self):
         return self.pD.value()
 
     def percentK(self):
         return self.pK.value()
+
+    def slowK(self):
+        return self.slowK.value()
