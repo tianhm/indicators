@@ -18,7 +18,7 @@ class IndicatorsTest(unittest.TestCase):
 
     def testRSI(self):
         rsi = RSI(14)
-        for close in []:
+        for close in [44.34, 44.09, 44.15, 43.61, 44.33, 44.83, 45.10, 45.42, 45.84, 46.08, 45.89, 46.03, 45.61, 46.28, 46.28, 46, 46.03, 46.41, 46.22]:
             rsi.handle(self._fakePeriodData(close))
         self.assertTrue(rsi.ready())
         self.assertTrue(rsi.value() < 67 and rsi.value() > 65)
