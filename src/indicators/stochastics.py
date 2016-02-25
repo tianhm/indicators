@@ -1,8 +1,8 @@
-'''
+"""
 Created on Apr 16, 2015
 
-@author: oly
-'''
+@author: oly@barefootanalytics.com
+"""
 from indicators import MultiMetricMetric
 from indicators import Low, High, Lowest, Highest
 from indicators import Divide, Subtract, Multiply,\
@@ -13,9 +13,15 @@ import logging
 log = logging.getLogger(__name__)
 log.setLevel(logging.DEBUG)
 
+
 class Stochastics(MultiMetricMetric):
+    """ Implementation of Full Stochastsics
+
+    For Slow Stochastics, pass a kperiod of 3.  For Fast Stochastics,
+    pass a kperiod of 1.  In other words, if you want Fast Stochastics(14,3)
+    in terms of a trading chart, use Stochastics(14,1,3) here.
+    """
     def __init__(self, period, kperiod, dperiod):
-        log.warn("Stochastics are in progress and values may be wrong")
         MultiMetricMetric.__init__(self)
         self.period = period
         self.dperiod = dperiod
@@ -31,8 +37,8 @@ class Stochastics(MultiMetricMetric):
         self.slowK = SimpleMovingAverage(metric=self.pK, period=kperiod)
         self.pD = SimpleMovingAverage(metric=self.slowK, period=self.dperiod)
 
-        self._addMetrics(self.close, self.low, self.high, self.lowest, \
-                         self.highest, self.closediff, self.highdiff, \
+        self._addMetrics(self.close, self.low, self.high, self.lowest,
+                         self.highest, self.closediff, self.highdiff,
                          self.percentKRaw, self.pK, self.slowK, self.pD)
 
     def value(self):
