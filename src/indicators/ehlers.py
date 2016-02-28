@@ -22,4 +22,5 @@ class Fisher(MultiMetricMetric):
                        (self.highest.value() - self.lowest.value()) - 0.5) \
             + 0.5 * self.lastValue
         self.lastValue = v
+
         return v
