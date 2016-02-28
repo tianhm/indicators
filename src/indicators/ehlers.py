@@ -3,6 +3,8 @@ from indicators import MultiMetricMetric, AdjustedClose, AdjustedHigh, AdjustedL
 
 class Fisher(MultiMetricMetric):
     def __init__(self, period):
+        MultiMetricMetric.__init__(self)
+
         self.close = AdjustedClose()
         self.period = period
         self.high = AdjustedHigh()
