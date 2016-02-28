@@ -1,4 +1,4 @@
-from indicators import Metric
+from indicators import Metric, AdjustedClose, AdjustedHigh, AdjustedLow, Highest, Lowest
 
 
 class Fisher(Metric):
