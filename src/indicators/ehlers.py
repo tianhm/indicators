@@ -1,7 +1,7 @@
-from indicators import Metric, AdjustedClose, AdjustedHigh, AdjustedLow, Highest, Lowest
+from indicators import MultiMetricMetric, AdjustedClose, AdjustedHigh, AdjustedLow, Highest, Lowest
 
 
-class Fisher(Metric):
+class Fisher(MultiMetricMetric):
     def __init__(self, period):
         self.close = AdjustedClose()
         self.period = period

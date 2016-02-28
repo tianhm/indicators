@@ -8,7 +8,7 @@ import numpy
 
 from cmath import sqrt
 from numpy import log, average
-from __builtin__ import False
+
 
 class Metric:
     def __init__(self):
@@ -25,6 +25,7 @@ class Metric:
 
     def recommendedPreload(self):
         return 0
+
 
 class Add(Metric):
     def __init__(self, metric1, metric2):
@@ -45,6 +46,7 @@ class Add(Metric):
     def recommendedPreload(self):
         return max(self.metric1.recommendedPreload(), self.metric2.recommendedPreload())
 
+
 class Subtract(Metric):
     def __init__(self, metric1, metric2):
         self.metric1 = metric1
@@ -61,6 +63,7 @@ class Subtract(Metric):
     def recommendedPreload(self):
         return max(self.metric1.recommendedPreload(), self.metric2.recommendedPreload())
 
+
 class Multiply(Metric):
     def __init__(self, metric1, metric2):
         self.metric1 = metric1
@@ -76,6 +79,7 @@ class Multiply(Metric):
 
     def recommendedPreload(self):
         return max(self.metric1.recommendedPreload(), self.metric2.recommendedPreload())
+
 
 class Divide(Metric):
     def __init__(self, metric1, metric2):
@@ -97,6 +101,7 @@ class Divide(Metric):
     def recommendedPreload(self):
         return max(self.metric1.recommendedPreload(), self.metric2.recommendedPreload())
 
+
 class Abs(Metric):
     def __init__(self, metric):
         self.metric = metric
@@ -111,6 +116,7 @@ class Abs(Metric):
 
     def recommendedPreload(self):
         return self.metric.recommendedPreload()
+
 
 class Max(Metric):
     def __init__(self, metrica, metricb):
@@ -128,6 +134,7 @@ class Max(Metric):
     def recommendedPreload(self):
         return max(self.metrica.recommendedPreload(), self.metricb.recommendedPreload())
 
+
 class Value(Metric):
     def __init__(self, value):
         self.val = value
@@ -137,6 +144,7 @@ class Value(Metric):
 
     def ready(self):
         return True
+
 
 class Open(Metric):
     def __init__(self):
@@ -152,6 +160,7 @@ class Open(Metric):
 
     def handle(self, perioddata):
         self.val = perioddata.open
+
 
 class Close(Metric):
     def __init__(self):
@@ -169,6 +178,7 @@ class Close(Metric):
         if periodData != None and periodData.close != None:
             self.val = periodData.close
 
+
 class AdjustedClose(Metric):
     def __init__(self):
         self.val = None
@@ -184,6 +194,7 @@ class AdjustedClose(Metric):
     def handle(self,periodData):
         if periodData != None and periodData.adjustedClose != None:
             self.val = periodData.adjustedClose
+
 
 class AdjustedOpen(Metric):
     def __init__(self):
@@ -201,6 +212,7 @@ class AdjustedOpen(Metric):
         if periodData != None and periodData.adjustedOpen != None:
             self.val = periodData.adjustedOpen
 
+
 class AdjustedHigh(Metric):
     def __init__(self):
         self.val = None
@@ -216,6 +228,7 @@ class AdjustedHigh(Metric):
     def handle(self,periodData):
         if periodData != None and periodData.adjustedHigh != None:
             self.val = periodData.adjustedHigh
+
 
 class AdjustedLow(Metric):
     def __init__(self):
@@ -233,6 +246,7 @@ class AdjustedLow(Metric):
         if periodData != None and periodData.adjustedLow != None:
             self.val = periodData.adjustedLow
 
+
 class High(Metric):
     def __init__(self):
         self.val = None
@@ -248,6 +262,7 @@ class High(Metric):
     def handle(self, periodData):
         if periodData != None and periodData.close != None:
             self.val = periodData.high
+
 
 class Low(Metric):
     def __init__(self):
@@ -265,6 +280,7 @@ class Low(Metric):
         if periodData != None and periodData.close != None:
             self.val = periodData.low
 
+
 class Volume(Metric):
     def __init__(self):
         self.val = None
@@ -279,6 +295,7 @@ class Volume(Metric):
 
     def handle(self, perioddata):
         self.val = perioddata.volume
+
 
 class MultiMetricMetric(Metric):
     """ If your metric depends on other metrics, subclass
@@ -317,6 +334,7 @@ class MultiMetricMetric(Metric):
                 retval = metric.recommendedPreload()
         return retval
 
+
 class AverageMetric(Metric):
     def __init__(self, *metrics):
         self.count=0
@@ -345,6 +363,7 @@ class AverageMetric(Metric):
         return sum/count
         #return average(values)
 
+
 # had to be after Close definition
 class ProxiedMetric(MultiMetricMetric):
     def __init__(self, metric):
@@ -361,6 +380,7 @@ class ProxiedMetric(MultiMetricMetric):
 
     def recommendedPreload(self):
         return self.metric.recommendedPreload()
+
 
 class PercentChange(ProxiedMetric):
     def __init__(self, metric=None):
@@ -388,6 +408,7 @@ class PercentChange(ProxiedMetric):
 
     def recommendedPreload(self):
         return ProxiedMetric.recommendedPreload(self) + 1
+
 
 class Highest(Metric):
     def __init__(self, metric, period):
@@ -418,6 +439,7 @@ class Highest(Metric):
     def recommendedPreload(self):
         return self.metric.recommendedPreload() + self.period
 
+
 class Lowest(Metric):
     def __init__(self, metric, period):
         self.metric=metric
@@ -446,6 +468,7 @@ class Lowest(Metric):
 
     def recommendedPreload(self):
         return self.metric.recommendedPreload() + self.period
+
 
 class SimpleMovingAverage(Metric):
     def __init__(self, metric=None, period=20):
@@ -483,6 +506,7 @@ class SimpleMovingAverage(Metric):
     def recommendedPreload(self):
         return self.metric.recommendedPreload() + self.period
 
+
 class ExponentialMovingAverage(Metric):
     def __init__(self, metric, period):
         self.metric = metric
@@ -513,6 +537,7 @@ class ExponentialMovingAverage(Metric):
 
     def recommendedPreload(self):
         return self.metric.recommendedPreload() + (self.period*2)
+
 
 class TrueRange(Metric):
     def __init__(self):
@@ -559,6 +584,7 @@ class AdjustedTrueRange(Metric):
     def recommendedPreload(self):
         return 1
 
+
 class DMPos(Metric):
     def __init__(self):
         self.lasthigh = None
@@ -587,6 +613,7 @@ class DMPos(Metric):
     def recommendedPreload(self):
         return 1
 
+
 class DMNeg(Metric):
     def __init__(self):
         self.lasthigh = None
@@ -614,6 +641,7 @@ class DMNeg(Metric):
 
     def recommendedPreload(self):
         return 1
+
 
 class _ADXSmoother(Metric):
     def __init__(self,metric,period):
@@ -644,6 +672,7 @@ class _ADXSmoother(Metric):
     def recommendedPreload(self):
         return self.metric.recommendedPreload() + (self.period*2)
 
+
 class ADR(Metric):
     def __init__(self,period):
         self.high = High()
@@ -668,6 +697,7 @@ class ADR(Metric):
     def recommendedPreload(self):
         return self.drav.recommendedPreload()
 
+
 class ATR(Metric):
     def __init__(self,period):
         self.tr = TrueRange()
@@ -688,6 +718,7 @@ class ATR(Metric):
     def recommendedPreload(self):
         return self.trav.recommendedPreload()
 
+
 class AdjustedATR(Metric):
     def __init__(self,period):
         self.tr = AdjustedTrueRange()
@@ -707,6 +738,7 @@ class AdjustedATR(Metric):
 
     def recommendedPreload(self):
         return self.trav.recommendedPreload()
+
 
 class HistoricMetric(Metric):
     def __init__(self, metric, period):
@@ -732,6 +764,7 @@ class HistoricMetric(Metric):
 
     def recommendedPreload(self):
         return self.metric.recommendedPreload() + self.period
+
 
 class _ADXAverager(Metric):
     def __init__(self,metric,period):
@@ -761,6 +794,7 @@ class _ADXAverager(Metric):
 
     def recommendedPreload(self):
         return self.metric.recommendedPreload() + (self.period*2)
+
 
 class ADX(Metric):
     def __init__(self,period):
@@ -814,6 +848,7 @@ class ADX(Metric):
 
     def recommendedPreload(self):
         return self.adx.recommendedPreload()
+
 
 class BollingerBands(Metric):
     def __init__(self, period=20, stdev=2.0, metric=None):
@@ -879,6 +914,7 @@ class BollingerBands(Metric):
     def recommendedPreload(self):
         return self.period*2
 
+
 # just a wrapper so we can use PercentB with the Historic Metric, which wants to use the value() call
 class BollingerBandsPercentB(Metric):
     def __init__(self, period=20, stdev=2.0, metric=None):
@@ -897,6 +933,7 @@ class BollingerBandsPercentB(Metric):
 
     def recommendedPreload(self):
         return self.bb.recommendedPreload()
+
 
 # Formula from Wilder's book, or see here
 # http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:relative_strength_index_rsi
@@ -963,6 +1000,7 @@ class RSI(Metric):
     def recommendedPreload(self):
         return self.metric.recommendedPreload() + (self.period*2)
 
+
 class LogN(Metric):
     def __init__(self, metric):
         self.metric = metric
@@ -980,6 +1018,7 @@ class LogN(Metric):
 
     def recommendedPreload(self):
         return self.metric.recommendedPreload()
+
 
 class STDev(Metric):
     def __init__(self, metric, period):
@@ -1005,6 +1044,7 @@ class STDev(Metric):
 
     def recommendedPreload(self):
         return self.metric.recommendedPreload() + self.period
+
 
 # NOTE not annualized! dependent on data period - could work it in
 class HistoricVolatility(Metric):
@@ -1044,6 +1084,7 @@ class HistoricVolatility(Metric):
     def recommendedPreload(self):
         return self.xistd.recommendedPreload()
 
+
 class NumTaps(Metric):
     def __init__(self, metric, period, margin):
         self.metric=metric
@@ -1075,6 +1116,7 @@ class NumTaps(Metric):
     def recommendedPreload(self):
         return self.metric.recommendedPreload() + self.period
 
+
 class NumTapsShort(Metric):
     def __init__(self, metric, period, margin):
         self.metric=metric
@@ -1105,6 +1147,7 @@ class NumTapsShort(Metric):
 
     def recommendedPreload(self):
         return self.metric.recommendedPreload() + self.period
+
 
 class MACD(ProxiedMetric):
     def __init__(self, metric, fastma=12, slowma=26, signalma=9):
