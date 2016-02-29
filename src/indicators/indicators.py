@@ -1166,3 +1166,19 @@ class MACD(ProxiedMetric):
 
     def value(self):
         return self.macdhist.value()
+
+
+class Momentum(MultiMetricMetric):
+    def __init__(self, period=14):
+        MultiMetricMetric.__init__(self)
+        self.close = AdjustedClose()
+        self.old_close = HistoricMetric(metric=self.close, period=period)
+        self._addMetrics(self.close, self.old_close)
+
+    def value(self):
+        delta = self.close.value() - self.old_close.value()
+        if delta == 0:
+            return 0
+        if self.old_close.value() == 0:
+            return 0
+        return delta/self.old_close.value()
