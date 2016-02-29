@@ -1,4 +1,42 @@
-from indicators import Metric, MultiMetricMetric, AdjustedClose, AdjustedHigh, AdjustedLow, Highest, Lowest
+from indicators import Metric, MultiMetricMetric, AdjustedClose,\
+    AdjustedHigh, AdjustedLow, Highest, Lowest, Add, Divide, Value
+from math import log
+
+
+class TOSFisher(MultiMetricMetric):
+    def __init__(self, period):
+        MultiMetricMetric.__init__(self)
+
+        self.close = AdjustedClose()
+        self.period = period
+        self.high = AdjustedHigh()
+        self.low = AdjustedLow()
+        self.p1 = Add(self.high, self.low)
+        self.price = Divide(self.p1, Value(2))
+        self.highest = Highest(self.price, period)
+        self.lowest = Lowest(self.price, period)
+        self.val = 0
+        self.fish = 0
+
+        self._addMetrics(self.close, self.high, self.low, self.p1, self.price,
+                         self.highest, self.lowest)
+
+    def handle(self, perioddata):
+        MultiMetricMetric.handle(self, perioddata)
+
+        if self.ready():
+            self.val = 0.66 * ((self.price.value() - self.lowest.value()) /
+                               (self.highest.value() - self.lowest.value()) - 0.5) \
+                       + 0.67 * self.val
+            if self.val > .9999:
+                self.val = .9999
+            if self.val < -.9999:
+                self.val = -.9999
+
+            self.fish = 0.5 * (log((1 + self.val) / (1 - self.val)) + self.fish)
+
+    def value(self):
+        return self.fish
 
 
 class Fisher(MultiMetricMetric):
@@ -9,20 +47,33 @@ class Fisher(MultiMetricMetric):
         self.period = period
         self.high = AdjustedHigh()
         self.low = AdjustedLow()
-        self.highest = Highest(self.high, period)
-        self.lowest = Lowest(self.low, period)
+        self.p1 = Add(self.high, self.low)
+        self.price = Divide(self.p1, Value(2))
+        self.highest = Highest(self.price, period)
+        self.lowest = Lowest(self.price, period)
         self.lastValue = 0
+        self.lastFish = 0
 
-        self._addMetrics(self.close, self.high, self.low, self.highest, self.lowest)
+        self._addMetrics(self.close, self.high, self.low, self.p1, self.price,
+                         self.highest, self.lowest)
 
     def value(self):
         if not self.ready():
             return 0
-        v = 0.5 * 2 * ((self.close.value() - self.lowest.value()) /
+        v = 0.5 * 2 * ((self.price.value() - self.lowest.value()) /
                        (self.highest.value() - self.lowest.value()) - 0.5) \
             + 0.5 * self.lastValue
+        if v > .9999:
+            v = .9999
+        if v < -.9999:
+            v = -.9999
         self.lastValue = v
-        return v
+
+        fish = 0.25 * log((1+v)/(1-v)) + 0.5 * self.lastFish
+
+        self.lastFish = fish
+        return fish
+
 
 
 class InstantaneousTrendline(Metric):
