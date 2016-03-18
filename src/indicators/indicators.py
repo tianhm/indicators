@@ -281,22 +281,6 @@ class Low(Metric):
             self.val = periodData.low
 
 
-class Volume(Metric):
-    def __init__(self):
-        self.val = None
-
-    def value(self):
-        return self.val
-
-    def ready(self):
-        if self.val != None:
-            return True
-        return False
-
-    def handle(self, perioddata):
-        self.val = perioddata.volume
-
-
 class MultiMetricMetric(Metric):
     """ If your metric depends on other metrics, subclass
     this and use _addMetric(m) to manage your dependencies.
@@ -333,6 +317,39 @@ class MultiMetricMetric(Metric):
             if metric.recommendedPreload() > retval:
                 retval = metric.recommendedPreload()
         return retval
+
+
+class Volume(Metric):
+    def __init__(self):
+        self.val = None
+
+    def value(self):
+        return self.val
+
+    def ready(self):
+        if self.val != None:
+            return True
+        return False
+
+    def handle(self, perioddata):
+        self.val = perioddata.volume
+
+
+class AverageVolume(MultiMetricMetric):
+    """ This is a quick way to track the simple moving average
+    of volume over a given period.
+    """
+    def __init__(self, period=21):
+        MultiMetricMetric.__init__(self)
+
+        self.volume = Volume()
+        self.avgVol = SimpleMovingAverage(self.volume, period)
+
+        self._addMetric(self.volume)
+        self._addMetric(self.avgVol)
+
+    def value(self):
+        return self.avgVol.value()
 
 
 class AverageMetric(Metric):
@@ -852,7 +869,7 @@ class ADX(Metric):
 
 class BollingerBands(Metric):
     def __init__(self, period=20, stdev=2.0, metric=None):
-        if metric == None:
+        if metric is None:
             self.metric       = Close()
             self.manageMetric = True
         else:
@@ -864,18 +881,18 @@ class BollingerBands(Metric):
         self.data   = list()
 
     def value(self):
-        if self.ready() == False:
+        if not self.ready():
             return None
         arr = numpy.array(self.data)
         return numpy.std(arr) * self.stdev
 
     def upperBand(self):
-        if self.ready() == False:
+        if not self.ready():
             return None
         return self.sma.value() + self.value()
 
     def lowerBand(self):
-        if self.ready() == False:
+        if not self.ready():
             return None
         return self.sma.value() - self.value()
 
@@ -883,7 +900,7 @@ class BollingerBands(Metric):
         return self.sma.value()
 
     def percentB(self):
-        if self.ready() == False:
+        if not self.ready():
             return None
         sma = self.sma.value()
         x = self.metric.value()
@@ -906,10 +923,10 @@ class BollingerBands(Metric):
             self.metric.handle(periodData)
         self.sma.handle(periodData)
         if self.sma.ready():
-            deviation = self.metric.value() # - self.sma.value()
-            self.data.append(deviation);
+            deviation = self.metric.value()
+            self.data.append(deviation)
             if len(self.data) > self.period:
-                self.data = self.data[(len(self.data)-self.period):]
+                self.data = self.data[(len(self.data) - self.period):]
 
     def recommendedPreload(self):
         return self.period*2
@@ -1069,6 +1086,8 @@ class HistoricVolatility(Metric):
         days = float(self.dataperiod) / 86400.0
         # comp for weekends
         days = (7.0/5.0)*days
+        if ret is None:
+            return None
         return ret * (sqrt(252))
 
     def handle(self, perioddata):
@@ -1080,6 +1099,7 @@ class HistoricVolatility(Metric):
             self.historicmetric.handle(perioddata)
             self.div.handle(perioddata)
             self.xi.handle(perioddata)
+            self.xistd.handle(perioddata)
 
     def recommendedPreload(self):
         return self.xistd.recommendedPreload()
