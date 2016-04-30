@@ -922,11 +922,10 @@ class BollingerBands(Metric):
         if self.manageMetric:
             self.metric.handle(periodData)
         self.sma.handle(periodData)
-        if self.sma.ready():
-            deviation = self.metric.value()
-            self.data.append(deviation)
-            if len(self.data) > self.period:
-                self.data = self.data[(len(self.data) - self.period):]
+        deviation = self.metric.value()
+        self.data.append(deviation)
+        if len(self.data) > self.period:
+            self.data = self.data[(len(self.data) - self.period):]
 
     def recommendedPreload(self):
         return self.period*2
@@ -1202,3 +1201,4 @@ class Momentum(MultiMetricMetric):
         if self.old_close.value() == 0:
             return 0
         return delta/self.old_close.value()
+

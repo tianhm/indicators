@@ -75,9 +75,8 @@ class Fisher(MultiMetricMetric):
         return fish
 
 
-
 class InstantaneousTrendline(Metric):
-    def __init__(self, alpha):
+    def __init__(self, alpha=0.5):
         Metric.__init__(self)
         self.alpha = alpha
         self.it = 0

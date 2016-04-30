@@ -4,7 +4,7 @@ Created on Jan 13, 2015
 @author: oly
 '''
 import unittest
-from indicators.indicators import RSI
+from indicators.indicators import RSI, BollingerBandsPercentB
 from indicators.stochastics import Stochastics
 from stocklib.perioddata import PeriodData
 
@@ -53,6 +53,21 @@ class IndicatorsTest(unittest.TestCase):
         stoch.handle(self._fakePeriodOHLCData(128.22, 128.22, 126.80, 128.01))
         self.assertTrue(stoch.ready())
         self.assertLess(abs(stoch.percentK()-89.20), .1)
+
+    def testBollingerPercentB(self):
+        """
+        Testing Bollinger PercentB indicator, using a short term BB to simplify the test and
+        validating against real data from Ameritrade
+
+        Using DGAZ data from after close 2016-03-08
+        """
+        bbp = BollingerBandsPercentB(5,1)
+        # high,low - open does not matter and close only
+        # relevant for last bar
+        for bar in [23.05,23.25,22.07,21.73,19.82,20.889999]:
+            bbp.handle(self._fakePeriodData(bar))
+        self.assertTrue(bbp.ready())
+        self.assertLess(abs(bbp.value() - 0.212365), .05)
 
 if __name__ == "__main__":
     unittest.main()
